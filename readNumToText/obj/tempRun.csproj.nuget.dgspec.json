@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\pond5\\numberToThaiString\\temprun\\tempRun.csproj": {}
+    "C:\\Users\\pond5\\numberToThaiString\\readNumToText\\tempRun.csproj": {}
   },
   "projects": {
-    "C:\\Users\\pond5\\numberToThaiString\\temprun\\tempRun.csproj": {
+    "C:\\Users\\pond5\\numberToThaiString\\readNumToText\\tempRun.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\pond5\\numberToThaiString\\temprun\\tempRun.csproj",
+        "projectUniqueName": "C:\\Users\\pond5\\numberToThaiString\\readNumToText\\tempRun.csproj",
         "projectName": "tempRun",
-        "projectPath": "C:\\Users\\pond5\\numberToThaiString\\temprun\\tempRun.csproj",
+        "projectPath": "C:\\Users\\pond5\\numberToThaiString\\readNumToText\\tempRun.csproj",
         "packagesPath": "C:\\Users\\pond5\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\pond5\\numberToThaiString\\temprun\\obj\\",
+        "outputPath": "C:\\Users\\pond5\\numberToThaiString\\readNumToText\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\pond5\\AppData\\Roaming\\NuGet\\NuGet.Config",
