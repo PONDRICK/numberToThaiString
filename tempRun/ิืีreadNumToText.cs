@@ -3,9 +3,15 @@ using System.Text;
 
 class ThaiNumberReader
 {
-    static readonly string[] Ones = { "ศูนย์", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า" };
-    static readonly string[] Places = { "", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน" };
+    // ตัวเลขหลักหน่วยในภาษาไทย
+    static readonly string[] ThaiDigits = { "ศูนย์", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า" };
 
+    // หน่วยของตัวเลขในแต่ละหลัก
+    static readonly string[] ThaiPlaces = { "", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน" };
+
+    /// <summary>
+    /// แปลงตัวเลขเป็นข้อความภาษาไทย เช่น 123 -> "หนึ่งร้อยยี่สิบสาม"
+    /// </summary>
     public static string ReadNumber(string input)
     {
         if (string.IsNullOrWhiteSpace(input))
@@ -20,86 +26,100 @@ class ThaiNumberReader
         bool isNegative = number < 0;
         number = Math.Abs(number);
 
-        string[] parts = number.ToString("0.################").Split('.'); // ไม่ปัดเศษ
+        string[] parts = number.ToString("0.################").Split('.');
         string integerPart = parts[0];
         string decimalPart = parts.Length > 1 ? parts[1] : "";
 
-        string result = (isNegative ? "ลบ" : "") + ReadIntegerPart(integerPart);
+        // เรียกฟังก์ชันแปลงเลขจำนวนเต็ม
+        string result = (isNegative ? "ลบ" : "") + ConvertIntegerToThaiText(integerPart);
 
+        // แปลงจุดทศนิยมถ้ามี
         if (!string.IsNullOrEmpty(decimalPart))
         {
             result += "จุด";
-            foreach (char digit in decimalPart)
+            foreach (char digitChar in decimalPart)
             {
-                result += Ones[digit - '0'];
+                int digit = digitChar - '0';
+                result += ThaiDigits[digit];
             }
         }
 
         return result;
     }
 
-    private static string ReadIntegerPart(string numStr)
+    /// <summary>
+    /// แปลงส่วนจำนวนเต็มเป็นคำอ่านภาษาไทย รองรับตัวเลขหลายหลักและหลักล้านขึ้นไป
+    /// </summary>
+    private static string ConvertIntegerToThaiText(string numberStr)
     {
-        if (numStr == "0") return "ศูนย์";
+        if (numberStr == "0") return "ศูนย์";
 
         StringBuilder result = new StringBuilder();
-        int len = numStr.Length;
-        int group = 0;
+        int remainingLength = numberStr.Length;
+        int groupCount = 0;
 
-        while (len > 0)
+        while (remainingLength > 0)
         {
-            int groupLen = Math.Min(6, len);
-            string segment = numStr.Substring(len - groupLen, groupLen);
-            string read = ReadGroup(segment);
+            int currentGroupLength = Math.Min(6, remainingLength);
+            string currentGroup = numberStr.Substring(remainingLength - currentGroupLength, currentGroupLength);
 
-            if (group > 0 && !string.IsNullOrEmpty(read))
+            string groupText = ReadGroupOfDigits(currentGroup);
+
+            if (groupCount > 0 && !string.IsNullOrEmpty(groupText))
                 result.Insert(0, "ล้าน");
 
-            result.Insert(0, read);
-            len -= groupLen;
-            group++;
+            result.Insert(0, groupText);
+            remainingLength -= currentGroupLength;
+            groupCount++;
         }
 
         return result.ToString();
     }
 
-    private static string ReadGroup(string segment)
+    /// <summary>
+    /// อ่านกลุ่มตัวเลข (สูงสุด 6 หลัก) เช่น "123456" -> "หนึ่งแสนสองหมื่นสามพัน..."
+    /// </summary>
+    private static string ReadGroupOfDigits(string digits)
     {
         StringBuilder result = new StringBuilder();
-        int len = segment.Length;
+        int length = digits.Length;
 
-        for (int i = 0; i < len; i++)
+        for (int i = 0; i < length; i++)
         {
-            int digit = segment[i] - '0';
-            int pos = len - i - 1;
+            int digit = digits[i] - '0';
+            int position = length - i - 1;
 
-            if (digit == 0) continue;
+            if (digit == 0)
+                continue;
 
-            if (pos == 0) // หน่วย
+            if (position == 0) // หลักหน่วย
             {
-                if (digit == 1 && len > 1)
+                if (digit == 1 && length > 1)
                     result.Append("เอ็ด");
                 else
-                    result.Append(Ones[digit]);
+                    result.Append(ThaiDigits[digit]);
             }
-            else if (pos == 1) // สิบ
+            else if (position == 1) // หลักสิบ
             {
                 if (digit == 1)
                     result.Append("สิบ");
                 else if (digit == 2)
                     result.Append("ยี่สิบ");
                 else
-                    result.Append(Ones[digit] + "สิบ");
+                    result.Append(ThaiDigits[digit] + "สิบ");
             }
-            else
+            else // หลักร้อย พัน หมื่น แสน
             {
-                result.Append(Ones[digit] + Places[pos]);
+                result.Append(ThaiDigits[digit] + ThaiPlaces[position]);
             }
         }
 
         return result.ToString();
     }
 
+    /// <summary>
+    /// ฟังก์ชันหลักสำหรับรับอินพุตจากผู้ใช้และแสดงผล
+    /// </summary>
     static void Main()
     {
         Console.OutputEncoding = Encoding.UTF8;
@@ -109,11 +129,11 @@ class ThaiNumberReader
             Console.Write("กรุณาใส่ตัวเลข (หรือพิมพ์ 'exit' เพื่อออก): ");
             string input = Console.ReadLine();
 
-            if (input?.ToLower() == "exit")
+            if (input?.Trim().ToLower() == "exit")
                 break;
 
-            string result = ReadNumber(input);
-            Console.WriteLine($"→ {result}\n");
+            string thaiText = ReadNumber(input);
+            Console.WriteLine($"→ {thaiText}\n");
         }
     }
 }
